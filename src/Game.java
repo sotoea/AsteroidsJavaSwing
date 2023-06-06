@@ -50,11 +50,11 @@ public class Game extends JFrame implements KeyListener, ActionListener {
         asteroidList = new ArrayList<>();
         for(int i = 0; i < 6; i++){
             asteroidList.add(new Asteroid(new int[][]{
-                    {30, 3},
-                    {5, (int)((Math.random()+1)*15)},
-                    {-25, 10},
-                    {-17, -15},
-                    {20, -(int)((Math.random()+1)*15)}
+                    {30, 12},
+                    {30, (int)((Math.random()+1)*20)},
+                    {-25, 17},
+                    {-22, -19},
+                    {20, -(int)((Math.random()+1)*20)}
             }));
         }
 
@@ -85,8 +85,8 @@ public class Game extends JFrame implements KeyListener, ActionListener {
             asteroidList.get(i).updatePosition();
 
             if(!asteroidList.get(i).active){
-                asteroidList.add(new Asteroid(asteroidList.get(i).xposition, asteroidList.get(i).yposition));
-                asteroidList.add(new Asteroid(asteroidList.get(i).xposition, asteroidList.get(i).yposition));
+                asteroidList.add(new Asteroid(asteroidList.get(i).xposition, asteroidList.get(i).yposition, ++asteroidList.get(i).iteration));
+                asteroidList.add(new Asteroid(asteroidList.get(i).xposition, asteroidList.get(i).yposition, asteroidList.get(i).iteration));
                 asteroidList.remove(i);
             }
         }
