@@ -87,6 +87,7 @@ public class Game extends JFrame implements KeyListener, ActionListener {
             if(!asteroidList.get(i).active){
                 asteroidList.add(new Asteroid(asteroidList.get(i).xposition, asteroidList.get(i).yposition, ++asteroidList.get(i).iteration));
                 asteroidList.add(new Asteroid(asteroidList.get(i).xposition, asteroidList.get(i).yposition, asteroidList.get(i).iteration));
+
                 asteroidList.remove(i);
             }
         }
