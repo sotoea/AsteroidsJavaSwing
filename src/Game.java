@@ -11,6 +11,7 @@ public class Game extends JFrame implements KeyListener, ActionListener {
     // Declaring constants
     public static final int width = 900;
     public static final int height = 600;
+    final int startingAsteroids = 70;
     // Declaring variables/objects
     public double fps = 60;
     public Window panel;
@@ -24,7 +25,7 @@ public class Game extends JFrame implements KeyListener, ActionListener {
     Timer timer;
     Image offscreen; // An image to be loaded offscreen
     Graphics2D offg; // A graphics object to go along with the offscreen image
-    boolean upKey, rightKey, leftKey, downKey, spaceKey;
+    boolean upKey, rightKey, leftKey, downKey, spaceKey, impulseKey;
 
     // Game constructor
     public Game(int x1, int y1, int x2, int y2) {
@@ -48,7 +49,7 @@ public class Game extends JFrame implements KeyListener, ActionListener {
                 });
 
         asteroidList = new ArrayList<>();
-        for(int i = 0; i < 6; i++){
+        for(int i = 0; i < startingAsteroids; i++){
             asteroidList.add(new Asteroid(new int[][]{
                     {30, 12},
                     {30, (int)((Math.random()+1)*20)},
@@ -85,9 +86,11 @@ public class Game extends JFrame implements KeyListener, ActionListener {
             asteroidList.get(i).updatePosition();
 
             if(!asteroidList.get(i).active){
-                asteroidList.add(new Asteroid(asteroidList.get(i).xposition, asteroidList.get(i).yposition, ++asteroidList.get(i).iteration));
-                asteroidList.add(new Asteroid(asteroidList.get(i).xposition, asteroidList.get(i).yposition, asteroidList.get(i).iteration));
-
+                if(asteroidList.get(i).iteration <= 2) {
+                    asteroidList.add(new Asteroid(asteroidList.get(i).xposition, asteroidList.get(i).yposition, ++asteroidList.get(i).iteration));
+                    asteroidList.add(new Asteroid(asteroidList.get(i).xposition, asteroidList.get(i).yposition, asteroidList.get(i).iteration));
+                    //asteroidList.add(new Asteroid(asteroidList.get(i).xposition, asteroidList.get(i).yposition, asteroidList.get(i).iteration));
+                }
                 asteroidList.remove(i);
             }
         }
@@ -106,8 +109,24 @@ public class Game extends JFrame implements KeyListener, ActionListener {
     }
 
     public void respawnShip(){
-        if(!ship.active && ship.frameCounter > 50 && ship.isRespawnSafe(asteroidList)){
+        if(!ship.active && ship.frameCounter > 10 && ship.isRespawnSafe(asteroidList)){
            ship.reset();
+           impulseForce(200);
+        }
+    }
+
+    public void impulseForce(int range){
+        for(Asteroid asteroid : asteroidList){
+            double xDist = asteroid.xposition - ship.xposition;
+            double yDist = asteroid.yposition - ship.yposition;
+            double distanceFromShip = Math.sqrt(
+                                      Math.pow(xDist, 2) +
+                                      Math.pow(yDist, 2));
+            if(distanceFromShip < range) {
+                double angle = Math.atan2(yDist, xDist);
+                asteroid.xspeed = Math.cos(angle) * (Math.random() + 1)/2 * 8;
+                asteroid.yspeed = Math.sin(angle) * (Math.random() + 1)/2 * 8;
+            }
         }
     }
 
@@ -145,7 +164,7 @@ public class Game extends JFrame implements KeyListener, ActionListener {
     }
 
     void fireBullet(){
-        if(ship.frameCounter > 10 && ship.active) {
+        if(ship.frameCounter > 1 && ship.active) {
             ship.frameCounter = 0;
             bulletList.add(new Bullet(
                     new int[][]{
@@ -169,6 +188,7 @@ public class Game extends JFrame implements KeyListener, ActionListener {
         if(leftKey) ship.rotateLeft();
         if(rightKey) ship.rotateRight();
         if(spaceKey) fireBullet();
+        if(impulseKey) impulseForce(100);
     }
 
     //region KeyListener Implementation
@@ -195,6 +215,9 @@ public class Game extends JFrame implements KeyListener, ActionListener {
             case KeyEvent.VK_SPACE -> {
                 spaceKey = true;
             }
+            case KeyEvent.VK_E -> {
+                impulseKey = true;
+            }
             default -> System.out.println(e.getKeyCode());
         }
     }
@@ -216,6 +239,9 @@ public class Game extends JFrame implements KeyListener, ActionListener {
             }
             case KeyEvent.VK_SPACE -> {
                 spaceKey = false;
+            }
+            case KeyEvent.VK_E -> {
+                impulseKey = false;
             }
             default -> System.out.println(e.getKeyCode());
         }

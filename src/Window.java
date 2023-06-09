@@ -23,6 +23,12 @@ public class Window extends JPanel {
         game.offg.fillRect(0, 0, Game.width, Game.height);
         game.offg.setColor(Color.GREEN);
 
+        if(game.asteroidList.isEmpty()){
+            game.offg.setColor(Color.GREEN);
+            game.offg.setFont(new Font("SansSerif", Font.PLAIN, 25));
+            printSimpleString("Game Over - You Win!!! Brrbrr", Game.width/2, Game.height/2, game.offg);
+        }
+
         if(game.ship.active) {
             game.ship.paint(game.offg,
                             new Color(0, 127, 127),
@@ -45,7 +51,14 @@ public class Window extends JPanel {
                     Color.red
             );
         }
-        //game.obj.paint(game.offg);
+
         g.drawImage(game.offscreen, 0, 0, this);
+    }
+
+    private void printSimpleString(String s, int XPos, int YPos, Graphics2D g2d){
+        int stringLen = (int)
+                g2d.getFontMetrics().getStringBounds(s, g2d).getWidth();
+        int start = -stringLen/2;
+        g2d.drawString(s, start + XPos, YPos);
     }
 }

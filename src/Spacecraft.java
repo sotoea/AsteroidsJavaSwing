@@ -54,7 +54,7 @@ public class Spacecraft extends VectorSprite {
             x = (int)asteroid.xposition - Game.width/2;
             y = (int)asteroid.yposition - Game.height/2;
             h = (int)Math.sqrt(Math.pow(x, 2) + (y * y));
-            if(h < 100){
+            if(h < 20){
                 return false;
             }
         }
