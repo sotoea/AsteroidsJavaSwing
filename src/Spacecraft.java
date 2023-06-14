@@ -6,9 +6,15 @@ public class Spacecraft extends VectorSprite {
     private final double thrusterPower;
     private final double frictionFactor;
     private final double rotationFactor;
+    public int lives;
+    public int immuneTime;
+    public int immuneTimer;
 
     public Spacecraft(int[][] vertices) {
         super(vertices);
+        immuneTimer = 0;
+        immuneTime = 50;
+        lives = 3;
         thrusterPower = 1;
         frictionFactor = 0.975;
         rotationFactor = Math.PI/20;
@@ -45,21 +51,23 @@ public class Spacecraft extends VectorSprite {
         yspeed = 0;
         angle = 0;
         active = true;
+        frameCounter = 0;
+        immuneTimer = 0;
     }
 
-    public boolean isRespawnSafe(ArrayList<Asteroid> asteroidList){
-        int x, y, h;
-        // We use Pythagorean theorem
-        for(Asteroid asteroid : asteroidList){
-            x = (int)asteroid.xposition - Game.width/2;
-            y = (int)asteroid.yposition - Game.height/2;
-            h = (int)Math.sqrt(Math.pow(x, 2) + (y * y));
-            if(h < 20){
-                return false;
-            }
-        }
-        return true;
-    }
+    //public boolean isRespawnSafe(ArrayList<Asteroid> asteroidList){
+    //    int x, y, h;
+    //    // We use Pythagorean theorem
+    //    for(Asteroid asteroid : asteroidList){
+    //        x = (int)asteroid.xposition - Game.width/2;
+    //        y = (int)asteroid.yposition - Game.height/2;
+    //        h = (int)Math.sqrt(Math.pow(x, 2) + (y * y));
+    //        if(h < 20){
+    //            return false;
+    //        }
+    //    }
+    //    return true;
+    //}
 }
 
 

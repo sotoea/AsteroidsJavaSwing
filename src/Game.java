@@ -1,17 +1,14 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
 import java.util.ArrayList;
 
-public class Game extends JFrame implements KeyListener, ActionListener {
+public class Game extends JFrame implements KeyListener, ActionListener, ComponentListener {
 
     // Declaring constants
-    public static final int width = 900;
-    public static final int height = 600;
-    final int startingAsteroids = 70;
+    public final static int width = 800;
+    public final static int height = 600;
+    final int startingAsteroids = 1;
     // Declaring variables/objects
     public double fps = 60;
     public Window panel;
@@ -19,27 +16,20 @@ public class Game extends JFrame implements KeyListener, ActionListener {
     public ArrayList<Asteroid> asteroidList;
     public ArrayList<Bullet> bulletList;
 
-//    public VectorSprite obj;
-//    double t = 0;
-
     Timer timer;
-    Image offscreen; // An image to be loaded offscreen
-    Graphics2D offg; // A graphics object to go along with the offscreen image
+
     boolean upKey, rightKey, leftKey, downKey, spaceKey, impulseKey;
 
     // Game constructor
     public Game(int x1, int y1, int x2, int y2) {
         this.setVisible(true);
-        //this.setSize(width, height);
         this.setTitle("rock go brrrrr");
-        this.setResizable(false);
+        this.setResizable(true);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         this.addKeyListener(this);
+        //this.addComponentListener(this);
 
-        this.add(this.panel = new Window(this), BorderLayout.CENTER);
-
-        this.pack();
 
         ship = new Spacecraft(
                 new int[][]{
@@ -61,12 +51,12 @@ public class Game extends JFrame implements KeyListener, ActionListener {
 
         bulletList = new ArrayList<>();
 
-        offscreen = createImage(this.getWidth(), this.getHeight());
-        offg = (Graphics2D) offscreen.getGraphics();
+        this.add(this.panel = new Window(this), BorderLayout.CENTER);
+
+        this.pack();
 
         timer = new Timer((int) (1000/fps), this);
         timer.start();
-
     }
 
     // Action performed will behave as our game loop
@@ -79,6 +69,9 @@ public class Game extends JFrame implements KeyListener, ActionListener {
         // Ship stuff
         ship.applyFriction();
         ship.updatePosition();
+        if(ship.active){
+            ship.immuneTimer++;
+        }
 
         // Asteroid stuff
         for(int i = asteroidList.size() - 1; i >= 0; i--){
@@ -86,7 +79,7 @@ public class Game extends JFrame implements KeyListener, ActionListener {
             asteroidList.get(i).updatePosition();
 
             if(!asteroidList.get(i).active){
-                if(asteroidList.get(i).iteration <= 2) {
+                if(asteroidList.get(i).iteration <= 0) {
                     asteroidList.add(new Asteroid(asteroidList.get(i).xposition, asteroidList.get(i).yposition, ++asteroidList.get(i).iteration));
                     asteroidList.add(new Asteroid(asteroidList.get(i).xposition, asteroidList.get(i).yposition, asteroidList.get(i).iteration));
                     //asteroidList.add(new Asteroid(asteroidList.get(i).xposition, asteroidList.get(i).yposition, asteroidList.get(i).iteration));
@@ -109,9 +102,9 @@ public class Game extends JFrame implements KeyListener, ActionListener {
     }
 
     public void respawnShip(){
-        if(!ship.active && ship.frameCounter > 10 && ship.isRespawnSafe(asteroidList)){
-           ship.reset();
-           impulseForce(200);
+        if(!ship.active && ship.frameCounter > 5){
+            ship.reset();
+            impulseForce(200);
         }
     }
 
@@ -132,8 +125,10 @@ public class Game extends JFrame implements KeyListener, ActionListener {
 
     public void checkCollision(){
         for (Asteroid asteroid : asteroidList) {
-            if (collision(ship, asteroid)) {
+            if (collision(ship, asteroid) && ship.immuneTimer > ship.immuneTime) {
                 ship.hit();
+                ship.immuneTimer = 0;
+                ship.lives--;
             }
 
             for (Bullet bullet : bulletList) {
@@ -245,6 +240,29 @@ public class Game extends JFrame implements KeyListener, ActionListener {
             }
             default -> System.out.println(e.getKeyCode());
         }
+    }
+
+    @Override
+    public void componentResized(ComponentEvent e) {
+        //width = getWidth();
+        //height = getHeight();
+        //this.add(this.panel = new Window(this), BorderLayout.CENTER);
+        //this.pack();
+    }
+
+    @Override
+    public void componentMoved(ComponentEvent e) {
+
+    }
+
+    @Override
+    public void componentShown(ComponentEvent e) {
+
+    }
+
+    @Override
+    public void componentHidden(ComponentEvent e) {
+
     }
     //endregion
 }
