@@ -1,6 +1,10 @@
 import javax.swing.*;
+import java.applet.Applet;
+import java.applet.AudioClip;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 
 public class Game extends JFrame implements KeyListener, ActionListener, ComponentListener {
@@ -8,28 +12,36 @@ public class Game extends JFrame implements KeyListener, ActionListener, Compone
     // Declaring constants
     public final static int width = 800;
     public final static int height = 600;
-    final int startingAsteroids = 1;
+    final int startingAsteroids = 4;
     // Declaring variables/objects
     public double fps = 60;
     public Window panel;
     public Spacecraft ship;
+    public ThrustSprite thrusterSprite;
     public ArrayList<Asteroid> asteroidList;
     public ArrayList<Bullet> bulletList;
-
+    boolean thrusterPlaying;
     Timer timer;
+
+    AudioUtil au;
+    AudioClip laser, thruster;
 
     boolean upKey, rightKey, leftKey, downKey, spaceKey, impulseKey;
 
     // Game constructor
-    public Game(int x1, int y1, int x2, int y2) {
+    public Game() {
         this.setVisible(true);
         this.setTitle("rock go brrrrr");
         this.setResizable(true);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        this.addKeyListener(this);
-        //this.addComponentListener(this);
 
+        this.addKeyListener(this);
+        try {
+            initAudio();
+        }catch(Exception e){
+            System.out.println(e.toString());
+        }
 
         ship = new Spacecraft(
                 new int[][]{
@@ -37,7 +49,12 @@ public class Game extends JFrame implements KeyListener, ActionListener, Compone
                         {-10, 10},
                         {-10, -10}
                 });
-
+        thrusterSprite = new ThrustSprite(
+                new int[][]{
+                        {-14, 12}, {-30, 18}, {-16, 6}, {-35, 0},
+                        {-16, -6}, {-30, -18}, {-14, -12}
+                }
+        );
         asteroidList = new ArrayList<>();
         for(int i = 0; i < startingAsteroids; i++){
             asteroidList.add(new Asteroid(new int[][]{
@@ -59,6 +76,12 @@ public class Game extends JFrame implements KeyListener, ActionListener, Compone
         timer.start();
     }
 
+    void initAudio() throws MalformedURLException {
+        au = AudioUtil.getInstance();
+        laser = Applet.newAudioClip(au.transform(new File("./src/Sounds/laser80.wav")));
+        thruster = Applet.newAudioClip(au.transform(new File("./src/Sounds/thruster.wav")));
+    }
+
     // Action performed will behave as our game loop
     // since it is combined with our timer
     @Override
@@ -72,6 +95,7 @@ public class Game extends JFrame implements KeyListener, ActionListener, Compone
         if(ship.active){
             ship.immuneTimer++;
         }
+        thrusterSprite.updatePosition();
 
         // Asteroid stuff
         for(int i = asteroidList.size() - 1; i >= 0; i--){
@@ -79,7 +103,7 @@ public class Game extends JFrame implements KeyListener, ActionListener, Compone
             asteroidList.get(i).updatePosition();
 
             if(!asteroidList.get(i).active){
-                if(asteroidList.get(i).iteration <= 0) {
+                if(asteroidList.get(i).iteration <= 2) {
                     asteroidList.add(new Asteroid(asteroidList.get(i).xposition, asteroidList.get(i).yposition, ++asteroidList.get(i).iteration));
                     asteroidList.add(new Asteroid(asteroidList.get(i).xposition, asteroidList.get(i).yposition, asteroidList.get(i).iteration));
                     //asteroidList.add(new Asteroid(asteroidList.get(i).xposition, asteroidList.get(i).yposition, asteroidList.get(i).iteration));
@@ -102,7 +126,7 @@ public class Game extends JFrame implements KeyListener, ActionListener, Compone
     }
 
     public void respawnShip(){
-        if(!ship.active && ship.frameCounter > 5){
+        if(!ship.active && ship.frameCounter > 5 && ship.lives >= 0){
             ship.reset();
             impulseForce(200);
         }
@@ -158,31 +182,87 @@ public class Game extends JFrame implements KeyListener, ActionListener, Compone
         return false;
     }
 
-    void fireBullet(){
-        if(ship.frameCounter > 1 && ship.active) {
+    void fireBullet(int bullet, int strength){
+        if(ship.frameCounter > 25 && ship.active) {
             ship.frameCounter = 0;
-            bulletList.add(new Bullet(
-                    new int[][]{
-                            {2, 6},
-                            {-2, 1},
-                            {-2, -1},
-                            {2, -6},
-                            {12, 0}
-                    },
-                    ship.xposition,
-                    ship.yposition,
-                    ship.angle,
-                    ship.xspeed,
-                    ship.yspeed
-            ));
+            laser.play();
+            for(int i = 0; i < bullet; i++){
+
+                for(int j = 0; j < strength;j++){
+                    bulletList.add(new Bullet(
+                            new int[][]{
+                                    {2, 6},
+                                    {-2, 1},
+                                    {-2, -1},
+                                    {2, -6},
+                                    {12, 0}
+                            },
+                            ship.xposition + Math.cos(ship.angle + ((Math.PI*2)/bullet)*i) * j * 10,
+                            ship.yposition + Math.sin(ship.angle + ((Math.PI*2)/bullet)*i) * j * 10,
+                            ship.angle + ((Math.PI*2)/bullet)*i,
+                            ship.xspeed,
+                            ship.yspeed
+                    ));}}
         }
+        //if(ship.frameCounter > 1 && ship.active) {
+        //    ship.frameCounter = 0;
+        //    bulletList.add(new Bullet(
+        //            new int[][]{
+        //                    {2, 6},
+        //                    {-2, 1},
+        //                    {-2, -1},
+        //                    {2, -6},
+        //                    {12, 0}
+        //            },
+        //            ship.xposition,
+        //            ship.yposition,
+        //            ship.angle,
+        //            ship.xspeed,
+        //            ship.yspeed
+        //    ));
+        //}
     }
+
+    public void restartGame(){
+        ship = new Spacecraft(
+                new int[][]{
+                        {15, 0},
+                        {-10, 10},
+                        {-10, -10}
+                });
+
+        asteroidList = new ArrayList<>();
+        for(int i = 0; i < startingAsteroids; i++){
+            asteroidList.add(new Asteroid(new int[][]{
+                    {30, 12},
+                    {30, (int)((Math.random()+1)*20)},
+                    {-25, 17},
+                    {-22, -19},
+                    {20, -(int)((Math.random()+1)*20)}
+            }));
+        }
+
+        bulletList = new ArrayList<>();
+        timer = new Timer((int) (1000/fps), this);
+        timer.start();
+    }
+
     public void keyCheck(){
-        if(upKey) ship.accelerate();
+
+        if(upKey){
+            ship.accelerate();
+            if(!thrusterPlaying) {
+                thrusterPlaying = true;
+                thruster.play();
+            }
+        }else{
+            thrusterPlaying = false;
+            thruster.stop();
+        }
         if(downKey) ship.decelerate();
         if(leftKey) ship.rotateLeft();
         if(rightKey) ship.rotateRight();
-        if(spaceKey) fireBullet();
+        if(spaceKey) fireBullet(6, 3);
         if(impulseKey) impulseForce(100);
     }
 
@@ -197,6 +277,7 @@ public class Game extends JFrame implements KeyListener, ActionListener, Compone
         switch (e.getKeyCode()) {
             case KeyEvent.VK_W -> {
                 upKey = true;
+
             }
             case KeyEvent.VK_S -> {
                 downKey = true;

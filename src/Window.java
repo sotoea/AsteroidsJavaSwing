@@ -1,9 +1,12 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class Window extends JPanel {
 
     private Game game;
+    private JButton restart;
 
     public Window(Game game){
 
@@ -11,7 +14,29 @@ public class Window extends JPanel {
         this.setDoubleBuffered(true);
 
         setPreferredSize(new Dimension(Game.width, Game.height));
-        System.out.println(Game.width);
+
+        this.setLayout(null);
+
+        restart = new JButton("Restart");
+        Dimension restartSize = restart.getPreferredSize();
+        restart.setBounds(Game.width/2 - restartSize.width/2,
+                            Game.height - 250,
+                            restartSize.width,
+                            restartSize.height);
+        restart.setBackground(Color.GREEN);
+        restart.setForeground(Color.BLACK);
+        restart.setFocusable(false);
+        restart.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                game.timer.stop();
+                game.restartGame();
+                restart.setVisible(false);
+            }
+        });
+
+        this.add(restart);
+        restart.setVisible(false);
     }
 
     @Override
@@ -52,7 +77,8 @@ public class Window extends JPanel {
                     new Color(0, 127, 127),
                     shipColor
             );
-
+            game.thrusterSprite.paint(g2d,new Color(0, 127, 127),
+                    shipColor);
         }
 
         for (Asteroid asteroid : game.asteroidList) {
@@ -72,15 +98,22 @@ public class Window extends JPanel {
         }
         g2d.setColor(Color.GREEN);
         g2d.setFont(new Font("SansSerif", Font.BOLD, 12));
-        printSimpleString("Lives: " + game.ship.lives, Game.width / 2, 20, g2d);
-
+        if(game.ship.lives >= 0) {
+            printSimpleString("Lives: " + game.ship.lives, Game.width / 2, 20, g2d);
+        }else{
+            restart.setVisible(true);
+            printSimpleString("Game Over\nYou LOSE!!!\nBrrbrr", Game.width / 2, Game.height / 2, g2d);
+        }
 
     }
 
-    private void printSimpleString(String s, int XPos, int YPos, Graphics2D g2d){
-        int stringLen = (int)
-                g2d.getFontMetrics().getStringBounds(s, g2d).getWidth();
-        int start = -stringLen/2;
-        g2d.drawString(s, start + XPos, YPos);
+    public static void printSimpleString(String s, int XPos, int YPos, Graphics2D g2d){
+        String[] sList = s.split("\n");
+        for(int i = 0; i < sList.length; i++){
+            int stringLen = (int)
+                    g2d.getFontMetrics().getStringBounds(sList[i], g2d).getWidth();
+            int start = -stringLen/2;
+            g2d.drawString(sList[i], start + XPos, YPos + i * 20);
+        }
     }
 }

@@ -14,8 +14,8 @@ public class Spacecraft extends VectorSprite {
         super(vertices);
         immuneTimer = 0;
         immuneTime = 50;
-        lives = 3;
-        thrusterPower = 1;
+        lives = 0;
+        thrusterPower = 0.75;
         frictionFactor = 0.975;
         rotationFactor = Math.PI/20;
         active = true;
