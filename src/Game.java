@@ -185,6 +185,7 @@ public class Game extends JFrame implements KeyListener, ActionListener, Compone
     void fireBullet(int bullet, int strength){
         if(ship.frameCounter > 25 && ship.active) {
             ship.frameCounter = 0;
+            laser.stop();
             laser.play();
             for(int i = 0; i < bullet; i++){
 
@@ -248,9 +249,15 @@ public class Game extends JFrame implements KeyListener, ActionListener, Compone
     }
 
     public void keyCheck(){
-
-        if(upKey){
-            ship.accelerate();
+        if(upKey) ship.accelerate();
+	    if(downKey) ship.decelerate();
+        if(leftKey) ship.rotateLeft();
+        if(rightKey) ship.rotateRight();
+        if(spaceKey) fireBullet(6, 3);
+        if(impulseKey) impulseForce(100);
+        
+        // thruster sound
+        if(upKey || downKey) {
             if(!thrusterPlaying) {
                 thrusterPlaying = true;
                 thruster.play();
@@ -259,11 +266,6 @@ public class Game extends JFrame implements KeyListener, ActionListener, Compone
             thrusterPlaying = false;
             thruster.stop();
         }
-        if(downKey) ship.decelerate();
-        if(leftKey) ship.rotateLeft();
-        if(rightKey) ship.rotateRight();
-        if(spaceKey) fireBullet(6, 3);
-        if(impulseKey) impulseForce(100);
     }
 
     //region KeyListener Implementation
@@ -277,7 +279,6 @@ public class Game extends JFrame implements KeyListener, ActionListener, Compone
         switch (e.getKeyCode()) {
             case KeyEvent.VK_W -> {
                 upKey = true;
-
             }
             case KeyEvent.VK_S -> {
                 downKey = true;
