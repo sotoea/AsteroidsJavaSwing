@@ -17,8 +17,6 @@ public class NewAudioUtil {
 
         clips[0] = AudioSystem.getClip();
         clips[0].open(audioInputStream);
-        clips[0].loop(0);
-        clips[0].stop();
 
         audioInputStream = AudioSystem.getAudioInputStream(
                 new File("./src/Sounds/laser79.wav").getAbsoluteFile()
@@ -26,8 +24,6 @@ public class NewAudioUtil {
 
         clips[1] = AudioSystem.getClip();
         clips[1].open(audioInputStream);
-        clips[1].loop(0);
-        clips[1].stop();
 
         audioInputStream = AudioSystem.getAudioInputStream(
                 new File("./src/Sounds/thruster.wav").getAbsoluteFile()
@@ -35,8 +31,6 @@ public class NewAudioUtil {
 
         clips[2] = AudioSystem.getClip();
         clips[2].open(audioInputStream);
-        clips[2].loop(-1);
-        clips[2].stop();
 
         audioInputStream = AudioSystem.getAudioInputStream(
                 new File("./src/Sounds/explode0.wav").getAbsoluteFile()
@@ -44,8 +38,6 @@ public class NewAudioUtil {
 
         clips[3] = AudioSystem.getClip();
         clips[3].open(audioInputStream);
-        clips[3].loop(0);
-        clips[3].stop();
 
         audioInputStream = AudioSystem.getAudioInputStream(
                 new File("./src/Sounds/explode1.wav").getAbsoluteFile()
@@ -53,8 +45,6 @@ public class NewAudioUtil {
 
         clips[4] = AudioSystem.getClip();
         clips[4].open(audioInputStream);
-        clips[4].loop(0);
-        clips[4].stop();
 
     }
 }

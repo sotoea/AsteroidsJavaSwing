@@ -268,11 +268,11 @@ public class Game extends JFrame implements KeyListener, ActionListener, Compone
         if(upKey || downKey) {
             if(!thrusterPlaying) {
                 thrusterPlaying = true;
-                //thruster.play();
+                audioUtil.clips[2].loop(-1);
             }
         }else{
             thrusterPlaying = false;
-            //thruster.stop();
+            audioUtil.clips[2].stop();
         }
     }
 
