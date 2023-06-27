@@ -23,8 +23,9 @@ public class Game extends JFrame implements KeyListener, ActionListener, Compone
     boolean thrusterPlaying;
     Timer timer;
 
-    AudioUtil au;
-    AudioClip laser, thruster;
+    int fireDelay = 30;
+
+    NewAudioUtil audioUtil;
 
     boolean upKey, rightKey, leftKey, downKey, spaceKey, impulseKey;
 
@@ -34,11 +35,10 @@ public class Game extends JFrame implements KeyListener, ActionListener, Compone
         this.setTitle("rock go brrrrr");
         this.setResizable(true);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-
-
         this.addKeyListener(this);
         try {
-            initAudio();
+            audioUtil = new NewAudioUtil();
+
         }catch(Exception e){
             System.out.println(e.toString());
         }
@@ -51,8 +51,8 @@ public class Game extends JFrame implements KeyListener, ActionListener, Compone
                 });
         thrusterSprite = new ThrustSprite(
                 new int[][]{
-                        {-14, 12}, {-30, 18}, {-16, 6}, {-35, 0},
-                        {-16, -6}, {-30, -18}, {-14, -12}
+                        {-14, 10}, {-30, 15}, {-25, 6}, {-40, 0},
+                        {-25, -6}, {-30, -15}, {-14, -10}
                 }
         );
         asteroidList = new ArrayList<>();
@@ -76,12 +76,6 @@ public class Game extends JFrame implements KeyListener, ActionListener, Compone
         timer.start();
     }
 
-    void initAudio() throws MalformedURLException {
-        au = AudioUtil.getInstance();
-        laser = Applet.newAudioClip(au.transform(new File("./src/Sounds/laser80.wav")));
-        thruster = Applet.newAudioClip(au.transform(new File("./src/Sounds/thruster.wav")));
-    }
-
     // Action performed will behave as our game loop
     // since it is combined with our timer
     @Override
@@ -95,6 +89,8 @@ public class Game extends JFrame implements KeyListener, ActionListener, Compone
         if(ship.active){
             ship.immuneTimer++;
         }
+
+        thrusterSprite.setPosition(ship.xposition, ship.yposition, ship.angle);
         thrusterSprite.updatePosition();
 
         // Asteroid stuff
@@ -103,7 +99,14 @@ public class Game extends JFrame implements KeyListener, ActionListener, Compone
             asteroidList.get(i).updatePosition();
 
             if(!asteroidList.get(i).active){
-                if(asteroidList.get(i).iteration <= 2) {
+                if (Math.random() >= 0.5) {
+                    audioUtil.clips[3].setFramePosition(0);
+                    audioUtil.clips[3].start();
+                } else {
+                    audioUtil.clips[4].setFramePosition(0);
+                    audioUtil.clips[4].start();
+                }
+                if(asteroidList.get(i).iteration <= 1) {
                     asteroidList.add(new Asteroid(asteroidList.get(i).xposition, asteroidList.get(i).yposition, ++asteroidList.get(i).iteration));
                     asteroidList.add(new Asteroid(asteroidList.get(i).xposition, asteroidList.get(i).yposition, asteroidList.get(i).iteration));
                     //asteroidList.add(new Asteroid(asteroidList.get(i).xposition, asteroidList.get(i).yposition, asteroidList.get(i).iteration));
@@ -183,10 +186,15 @@ public class Game extends JFrame implements KeyListener, ActionListener, Compone
     }
 
     void fireBullet(int bullet, int strength){
-        if(ship.frameCounter > 25 && ship.active) {
+        if(ship.frameCounter > fireDelay && ship.active) {
             ship.frameCounter = 0;
-            laser.stop();
-            laser.play();
+            if (Math.random() >= 0.5) {
+                audioUtil.clips[0].setFramePosition(0);
+                audioUtil.clips[0].start();
+            } else {
+                audioUtil.clips[1].setFramePosition(0);
+                audioUtil.clips[1].start();
+            }
             for(int i = 0; i < bullet; i++){
 
                 for(int j = 0; j < strength;j++){
@@ -260,11 +268,11 @@ public class Game extends JFrame implements KeyListener, ActionListener, Compone
         if(upKey || downKey) {
             if(!thrusterPlaying) {
                 thrusterPlaying = true;
-                thruster.play();
+                //thruster.play();
             }
         }else{
             thrusterPlaying = false;
-            thruster.stop();
+            //thruster.stop();
         }
     }
 

@@ -77,8 +77,9 @@ public class Window extends JPanel {
                     new Color(0, 127, 127),
                     shipColor
             );
-            game.thrusterSprite.paint(g2d,new Color(0, 127, 127),
-                    shipColor);
+            if (game.upKey) {
+                game.thrusterSprite.paint(g2d, new Color(150, 50, 50), Color.red);
+            }
         }
 
         for (Asteroid asteroid : game.asteroidList) {
