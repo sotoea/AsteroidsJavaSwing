@@ -2,11 +2,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 
 public class Window extends JPanel {
 
     private Game game;
     private JButton restart;
+    private JButton quit;
 
     public Window(Game game){
 
@@ -38,6 +40,25 @@ public class Window extends JPanel {
 
         this.add(restart);
         restart.setVisible(false);
+
+        quit = new JButton("Quit");
+        Dimension quitSize = restart.getPreferredSize();
+        quit.setBounds(Game.width/2 - quitSize.width/2,
+                Game.height - 150,
+                quitSize.width,
+                quitSize.height);
+        quit.setBackground(Color.GREEN);
+        quit.setForeground(Color.BLACK);
+        quit.setFocusable(false);
+        quit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                game.dispatchEvent(new WindowEvent(game, WindowEvent.WINDOW_CLOSING));
+            }
+        });
+
+        this.add(quit);
+        quit.setVisible(true);
     }
 
     @Override
