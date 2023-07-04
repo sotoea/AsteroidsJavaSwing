@@ -44,6 +44,10 @@ public class Spacecraft extends VectorSprite {
         angle += rotationFactor;
     }
 
+    public void rotate(float mouseAngle){
+        angle = mouseAngle;
+    }
+
     public void reset(){
         xposition = (double) Game.width /2;
         yposition = (double) Game.height /2;

@@ -1,24 +1,50 @@
+import javax.sound.sampled.*;
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.io.IOException;
 
 public class AudioUtil {
-    //Singleton
-    private static AudioUtil ourInstance = new AudioUtil();
+    AudioInputStream audioInputStream;
+    Clip[] clips;
 
-    public static AudioUtil getInstance(){
-        return ourInstance;
-    }
+    public AudioUtil() throws UnsupportedAudioFileException,
+            IOException, LineUnavailableException {
 
-    public AudioUtil(){
+        clips = new Clip[5];
 
-    }
+        audioInputStream = AudioSystem.getAudioInputStream(
+                new File("./src/Sounds/laser80.wav").getAbsoluteFile()
+        );
 
-    public URL transform(File audioFile) throws MalformedURLException {
-        if(audioFile.canRead()){
-            // Uniform Resource Locator
-            return audioFile.toURI().toURL();
-        }
-        throw new IllegalArgumentException();
+        clips[0] = AudioSystem.getClip();
+        clips[0].open(audioInputStream);
+
+        audioInputStream = AudioSystem.getAudioInputStream(
+                new File("./src/Sounds/laser79.wav").getAbsoluteFile()
+        );
+
+        clips[1] = AudioSystem.getClip();
+        clips[1].open(audioInputStream);
+
+        audioInputStream = AudioSystem.getAudioInputStream(
+                new File("./src/Sounds/thruster.wav").getAbsoluteFile()
+        );
+
+        clips[2] = AudioSystem.getClip();
+        clips[2].open(audioInputStream);
+
+        audioInputStream = AudioSystem.getAudioInputStream(
+                new File("./src/Sounds/explode0.wav").getAbsoluteFile()
+        );
+
+        clips[3] = AudioSystem.getClip();
+        clips[3].open(audioInputStream);
+
+        audioInputStream = AudioSystem.getAudioInputStream(
+                new File("./src/Sounds/explode1.wav").getAbsoluteFile()
+        );
+
+        clips[4] = AudioSystem.getClip();
+        clips[4].open(audioInputStream);
+
     }
 }

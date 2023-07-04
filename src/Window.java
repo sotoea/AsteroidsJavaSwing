@@ -29,7 +29,8 @@ public class Window extends JPanel {
         restart.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                game.timer.stop();
+                if(game.gameStarted)
+                    game.timer.stop();
                 game.restartGame();
                 restart.setVisible(false);
             }
@@ -53,59 +54,68 @@ public class Window extends JPanel {
         g2d.fillRect(0, 0, Game.width, Game.height);
 
 
-
-        if (game.asteroidList.isEmpty()) {
-            g2d.setColor(Color.GREEN);
-            g2d.setFont(new Font("SansSerif", Font.PLAIN, 25));
-            printSimpleString("Game Over - You Win!!! Brrbrr", Game.width / 2, Game.height / 2, g2d);
-        }
-
-        if (game.ship.active) {
-
-            g2d.setColor(Color.GREEN);
-            if(game.ship.immuneTimer <= game.ship.immuneTime){
-                ImmunityRing ring =
-                        new ImmunityRing(
-                                game.ship.xposition - 20,
-                                game.ship.yposition - 20,
-                                360 - (game.ship.immuneTimer * ((double) 360 /game.ship.immuneTime))
-                        );
-                g2d.draw(ring.ring);
+        if(game.gameStarted) {
+            if (game.asteroidList.isEmpty()) {
+                g2d.setColor(Color.GREEN);
+                g2d.setFont(new Font("SansSerif", Font.PLAIN, 25));
+                printSimpleString("Game Over - You Win!!! Brrbrr", Game.width / 2, Game.height / 2, g2d);
             }
-            Color shipColor = (game.ship.immuneTimer > game.ship.immuneTime) ? new Color(0, 255, 255) : new Color(255, 255, 255);
-            game.ship.paint(g2d,
-                    new Color(0, 127, 127),
-                    shipColor
-            );
-            if (game.upKey) {
-                game.thrusterSprite.paint(g2d, new Color(150, 50, 50), Color.red);
+
+            if (game.ship.active) {
+
+                g2d.setColor(Color.GREEN);
+                if (game.ship.immuneTimer <= game.ship.immuneTime) {
+                    ImmunityRing ring =
+                            new ImmunityRing(
+                                    game.ship.xposition - 20,
+                                    game.ship.yposition - 20,
+                                    360 - (game.ship.immuneTimer * ((double) 360 / game.ship.immuneTime))
+                            );
+                    g2d.draw(ring.ring);
+                }
+                Color shipColor = (game.ship.immuneTimer > game.ship.immuneTime) ? new Color(0, 255, 255) : new Color(255, 255, 255);
+                game.ship.paint(g2d,
+                        new Color(0, 127, 127),
+                        shipColor
+                );
+                if (game.upKey) {
+                    game.thrusterSprite.paint(g2d, new Color(150, 50, 50), Color.red);
+                }
+            }
+
+            for (Asteroid asteroid : game.asteroidList) {
+                if (asteroid.active)
+                    asteroid.paint(g2d,
+                            new Color(112, 70, 30),
+                            new Color(63, 35, 4)
+                    );
+            }
+
+            for (Bullet bullet : game.bulletList) {
+                if (bullet.active)
+                    bullet.paint(g2d,
+                            new Color(137, 26, 26),
+                            Color.red
+                    );
+            }
+            g2d.setColor(Color.GREEN);
+            g2d.setFont(new Font("SansSerif", Font.BOLD, 12));
+            if (game.ship.lives >= 0) {
+                printSimpleString("Lives: " + game.ship.lives, Game.width / 2, 20, g2d);
+            } else {
+                restart.setText("Restart");
+                restart.setVisible(true);
+                printSimpleString("Game Over\nYou LOSE!!!\nBrrbrr", Game.width / 2, Game.height / 2, g2d);
             }
         }
-
-        for (Asteroid asteroid : game.asteroidList) {
-            if (asteroid.active)
-                asteroid.paint(g2d,
-                        new Color(112, 70, 30),
-                        new Color(63, 35, 4)
-                );
-        }
-
-        for (Bullet bullet : game.bulletList) {
-            if (bullet.active)
-                bullet.paint(g2d,
-                        new Color(137, 26, 26),
-                        Color.red
-                );
-        }
-        g2d.setColor(Color.GREEN);
-        g2d.setFont(new Font("SansSerif", Font.BOLD, 12));
-        if(game.ship.lives >= 0) {
-            printSimpleString("Lives: " + game.ship.lives, Game.width / 2, 20, g2d);
-        }else{
+        else{
+            g2d.setFont(new Font("sans-serif", Font.PLAIN, 25));
+            g2d.setColor(Color.GREEN);
+            printSimpleString("Welcome to Spaceship goes Pewwpeww!!!!!",
+                    Game.width / 2, Game.height / 2, g2d);
+            restart.setText("Start");
             restart.setVisible(true);
-            printSimpleString("Game Over\nYou LOSE!!!\nBrrbrr", Game.width / 2, Game.height / 2, g2d);
         }
-
     }
 
     public static void printSimpleString(String s, int XPos, int YPos, Graphics2D g2d){
